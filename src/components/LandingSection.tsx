@@ -29,7 +29,7 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
         
         <button 
           onClick={onGetStarted}
-          className="px-8 py-4 bg-primary text-white font-medium rounded-full hover:bg-primary-dark transition-all duration-300 shadow-md hover:shadow-lg"
+          className="px-8 py-4 bg-gradient-to-r from-primary to-[#8B5CF6] text-white font-medium rounded-full hover:shadow-lg hover:bg-primary-dark transition-all duration-300"
         >
           Get Started
           <span className="ml-2 inline-block transform group-hover:translate-x-1 transition-transform">→</span>
