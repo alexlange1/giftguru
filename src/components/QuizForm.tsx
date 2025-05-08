@@ -1,7 +1,11 @@
 
 import React, { useState } from 'react';
 import { GiftFormData } from '../types/gift';
-import { ArrowRight, Gift, Lightbulb, Heart, Camera, Music, Book, Utensils, Plane, Code } from 'lucide-react';
+import { 
+  ArrowRight, Camera, Music, Book, 
+  Utensils, Plane, Code, Lightbulb, 
+  Palette, Scissors, Gamepad
+} from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -9,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { RadioGroup } from '@/components/ui/radio-group';
+import { Toggle } from '@/components/ui/toggle';
 
 interface QuizFormProps {
   onSubmit: (data: GiftFormData) => void;
@@ -22,6 +27,24 @@ interface InterestOption {
   color: string;
 }
 
+interface RelationshipOption {
+  value: string;
+  label: string;
+  emoji: string;
+  color: string;
+}
+
+interface OccasionOption {
+  value: string;
+  label: string;
+  emoji: string;
+  color: string;
+}
+
+const RequiredIndicator = () => (
+  <span className="text-red-500 ml-1">*</span>
+);
+
 const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
   const [formData, setFormData] = useState<GiftFormData>({
     age: 30,
@@ -32,8 +55,9 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
   });
   
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
 
-  // Pre-defined interest options with icons
+  // Pre-defined interest options with icons - added Creative and Gaming options
   const interestOptions: InterestOption[] = [
     { value: 'photography', label: 'Photography', icon: Camera, color: 'bg-blue-100 dark:bg-blue-900' },
     { value: 'music', label: 'Music', icon: Music, color: 'bg-purple-100 dark:bg-purple-900' },
@@ -41,6 +65,31 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
     { value: 'cooking', label: 'Cooking', icon: Utensils, color: 'bg-red-100 dark:bg-red-900' },
     { value: 'travel', label: 'Travel', icon: Plane, color: 'bg-green-100 dark:bg-green-900' },
     { value: 'tech', label: 'Technology', icon: Code, color: 'bg-gray-100 dark:bg-gray-800' },
+    { value: 'creative', label: 'Creative', icon: Palette, color: 'bg-pink-100 dark:bg-pink-900' },
+    { value: 'gaming', label: 'Gaming', icon: Gamepad, color: 'bg-indigo-100 dark:bg-indigo-900' },
+  ];
+  
+  // Relationship options with emojis and colors
+  const relationshipOptions: RelationshipOption[] = [
+    { value: 'friend', label: 'Friend', emoji: '👯', color: 'bg-blue-100 dark:bg-blue-800' },
+    { value: 'partner', label: 'Partner/Spouse', emoji: '💑', color: 'bg-pink-100 dark:bg-pink-800' },
+    { value: 'parent', label: 'Parent', emoji: '👪', color: 'bg-green-100 dark:bg-green-800' },
+    { value: 'child', label: 'Child', emoji: '👶', color: 'bg-yellow-100 dark:bg-yellow-800' },
+    { value: 'sibling', label: 'Sibling', emoji: '👨‍👩‍👧‍👦', color: 'bg-purple-100 dark:bg-purple-800' },
+    { value: 'coworker', label: 'Coworker', emoji: '👨‍💼', color: 'bg-gray-100 dark:bg-gray-700' },
+    { value: 'other', label: 'Other', emoji: '🤝', color: 'bg-orange-100 dark:bg-orange-800' },
+  ];
+  
+  // Occasion options with emojis and colors
+  const occasionOptions: OccasionOption[] = [
+    { value: 'birthday', label: 'Birthday', emoji: '🎂', color: 'from-pink-500/20 to-orange-500/20' },
+    { value: 'christmas', label: 'Christmas', emoji: '🎄', color: 'from-green-500/20 to-red-500/20' },
+    { value: 'anniversary', label: 'Anniversary', emoji: '💍', color: 'from-purple-500/20 to-pink-500/20' },
+    { value: 'valentines', label: 'Valentine\'s Day', emoji: '❤️', color: 'from-red-500/20 to-pink-500/20' },
+    { value: 'graduation', label: 'Graduation', emoji: '🎓', color: 'from-blue-500/20 to-indigo-500/20' },
+    { value: 'wedding', label: 'Wedding', emoji: '👰', color: 'from-blue-500/20 to-purple-500/20' },
+    { value: 'just-because', label: 'Just Because', emoji: '✨', color: 'from-yellow-500/20 to-orange-500/20' },
+    { value: 'other', label: 'Other', emoji: '🎁', color: 'from-gray-500/20 to-gray-400/20' },
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -56,6 +105,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
       ...prev,
       [name]: value
     }));
+    setFormErrors(prev => ({ ...prev, [name]: false }));
   };
   
   const handleSliderChange = (value: number[]) => {
@@ -63,6 +113,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
       ...prev,
       age: value[0]
     }));
+    setFormErrors(prev => ({ ...prev, age: false }));
   };
   
   const toggleInterest = (interest: string) => {
@@ -74,20 +125,43 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
       }
     });
     
-    // Update interests in form data
+    // Update interests in form data - but don't add to the textarea
+    // Only store the selected interests ids in the formData
     const updatedInterests = selectedInterests.includes(interest) 
       ? selectedInterests.filter(i => i !== interest)
       : [...selectedInterests, interest];
       
     setFormData(prev => ({
       ...prev,
-      interests: [...updatedInterests, formData.interests.trim() ? formData.interests : ''].filter(Boolean).join(', ')
+      interests: updatedInterests.join(', ')
     }));
+    
+    // Clear interest error if any were selected
+    if (!selectedInterests.includes(interest)) {
+      setFormErrors(prev => ({ ...prev, interests: false }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Validate required fields
+    const errors: Record<string, boolean> = {};
+    if (!formData.relationship) errors.relationship = true;
+    if (!formData.interests && selectedInterests.length === 0) errors.interests = true;
+    if (!formData.budget) errors.budget = true;
+    if (!formData.occasion) errors.occasion = true;
+    
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    
+    onSubmit({
+      ...formData,
+      // For the textarea interests, we'll only use what's in the textArea as additional interests
+      interests: [...selectedInterests, formData.interests].filter(Boolean).join(', ')
+    });
   };
 
   return (
@@ -110,7 +184,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                 <CardContent className="p-6 space-y-6">
                   <div>
                     <Label htmlFor="age" className="text-lg font-medium text-gray-800 dark:text-gray-200 font-serif mb-3 block">
-                      Their Age: {formData.age}
+                      Their Age: {formData.age} <RequiredIndicator />
                     </Label>
                     <div className="px-2">
                       <Slider 
@@ -133,59 +207,47 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                   
                   <div>
                     <Label htmlFor="relationship" className="text-lg font-medium text-gray-800 dark:text-gray-200 font-serif mb-3 block">
-                      Your Relationship
+                      Your Relationship <RequiredIndicator />
                     </Label>
-                    <Select 
-                      value={formData.relationship} 
-                      onValueChange={(value) => handleSelectChange('relationship', value)}
-                    >
-                      <SelectTrigger className="w-full h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-[#e5deff] dark:border-[#8B5CF6]/30 focus:ring-primary focus:ring-offset-0">
-                        <SelectValue placeholder="Select relationship" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="friend" className="flex items-center">
-                          <Heart className="mr-2 h-4 w-4 text-blue-500" />
-                          Friend
-                        </SelectItem>
-                        <SelectItem value="partner" className="flex items-center">
-                          <Heart className="mr-2 h-4 w-4 text-red-500" />
-                          Partner/Spouse
-                        </SelectItem>
-                        <SelectItem value="parent" className="flex items-center">
-                          <Heart className="mr-2 h-4 w-4 text-green-500" />
-                          Parent
-                        </SelectItem>
-                        <SelectItem value="child" className="flex items-center">
-                          <Heart className="mr-2 h-4 w-4 text-yellow-500" />
-                          Child
-                        </SelectItem>
-                        <SelectItem value="sibling" className="flex items-center">
-                          <Heart className="mr-2 h-4 w-4 text-purple-500" />
-                          Sibling
-                        </SelectItem>
-                        <SelectItem value="coworker" className="flex items-center">
-                          <Heart className="mr-2 h-4 w-4 text-gray-500" />
-                          Coworker
-                        </SelectItem>
-                        <SelectItem value="other" className="flex items-center">
-                          <Heart className="mr-2 h-4 w-4 text-pink-500" />
-                          Other
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {relationshipOptions.map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => handleSelectChange('relationship', option.value)}
+                          className={`p-4 rounded-xl transition-all flex flex-col items-center ${
+                            formData.relationship === option.value
+                              ? `${option.color} ring-2 ring-primary/70 shadow-md`
+                              : 'bg-white/50 dark:bg-gray-700/50 hover:bg-white hover:dark:bg-gray-700'
+                          } ${formErrors.relationship && 'border-red-500 dark:border-red-500'}`}
+                        >
+                          <span className="text-3xl mb-2">{option.emoji}</span>
+                          <span className={`text-sm font-medium ${
+                            formData.relationship === option.value ? 'font-bold' : ''
+                          }`}>
+                            {option.label}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    {formErrors.relationship && (
+                      <p className="text-red-500 text-sm mt-2">Please select your relationship</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
               
               <Card className="border border-[#e5deff]/50 dark:border-[#8B5CF6]/30 shadow-md overflow-hidden">
                 <div className="bg-gradient-to-r from-[#F5F5F5] to-[#E5DEFF]/30 dark:from-gray-800 dark:to-[#201920] p-4 border-b border-[#e5deff]/30 dark:border-[#8B5CF6]/20">
-                  <h3 className="font-serif text-lg font-medium">Their Interests</h3>
+                  <h3 className="font-serif text-lg font-medium">Their Interests <RequiredIndicator /></h3>
                 </div>
                 <CardContent className="p-6">
                   <Label className="text-gray-800 dark:text-gray-200 mb-4 block">
-                    Select interests that apply (or add your own below)
+                    Select interests that apply <RequiredIndicator />
                   </Label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                  <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6 ${
+                    formErrors.interests ? 'border border-red-500 rounded-lg p-2' : ''
+                  }`}>
                     {interestOptions.map((interest) => (
                       <button
                         key={interest.value}
@@ -204,6 +266,9 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                       </button>
                     ))}
                   </div>
+                  {formErrors.interests && (
+                    <p className="text-red-500 text-sm mb-2">Please select at least one interest</p>
+                  )}
                   <div>
                     <Label htmlFor="interests" className="text-gray-800 dark:text-gray-200 mb-2 block">
                       Add more details about what they love
@@ -228,55 +293,73 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                 <CardContent className="p-6 space-y-6">
                   <div>
                     <Label htmlFor="budget" className="text-lg font-medium text-gray-800 dark:text-gray-200 font-serif mb-3 block">
-                      Budget Range
+                      Budget Range <RequiredIndicator />
                     </Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {['under-25', '25-50', '50-100', 'over-100'].map((budget, index) => {
-                        const labels = ['Under $25', '$25 - $50', '$50 - $100', 'Over $100'];
-                        return (
-                          <button
-                            key={budget}
-                            type="button"
-                            onClick={() => handleSelectChange('budget', budget)}
-                            className={`p-3 rounded-xl transition-all ${
-                              formData.budget === budget
-                                ? 'bg-primary/20 border-2 border-primary'
-                                : 'bg-white/50 dark:bg-gray-700/50 border border-[#e5deff] dark:border-[#8B5CF6]/30'
-                            }`}
-                          >
-                            <div className="text-center">
-                              <span className={`text-md ${formData.budget === budget ? 'font-bold text-primary' : ''}`}>
-                                {labels[index]}
-                              </span>
-                            </div>
-                          </button>
-                        );
-                      })}
+                    <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 ${
+                      formErrors.budget ? 'border border-red-500 rounded-lg p-2' : ''
+                    }`}>
+                      {[
+                        { id: 'under-25', label: 'Under $25', emoji: '💰' },
+                        { id: '25-50', label: '$25 - $50', emoji: '💰💰' },
+                        { id: '50-100', label: '$50 - $100', emoji: '💰💰💰' },
+                        { id: 'over-100', label: 'Over $100', emoji: '💰💰💰💰' },
+                      ].map((budget) => (
+                        <button
+                          key={budget.id}
+                          type="button"
+                          onClick={() => handleSelectChange('budget', budget.id)}
+                          className={`p-3 rounded-xl transition-all ${
+                            formData.budget === budget.id
+                              ? 'bg-primary/20 border-2 border-primary shadow-md'
+                              : 'bg-white/50 dark:bg-gray-700/50 border border-[#e5deff] dark:border-[#8B5CF6]/30'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-xl mb-1">{budget.emoji}</div>
+                            <span className={`text-md ${formData.budget === budget.id ? 'font-bold text-primary' : ''}`}>
+                              {budget.label}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
                     </div>
+                    {formErrors.budget && (
+                      <p className="text-red-500 text-sm mt-2">Please select a budget range</p>
+                    )}
                   </div>
                   
                   <div>
                     <Label htmlFor="occasion" className="text-lg font-medium text-gray-800 dark:text-gray-200 font-serif mb-3 block">
-                      Occasion
+                      Occasion <RequiredIndicator />
                     </Label>
-                    <Select 
-                      value={formData.occasion} 
-                      onValueChange={(value) => handleSelectChange('occasion', value)}
-                    >
-                      <SelectTrigger className="w-full h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-[#e5deff] dark:border-[#8B5CF6]/30 focus:ring-primary focus:ring-offset-0">
-                        <SelectValue placeholder="Select occasion" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="birthday">Birthday</SelectItem>
-                        <SelectItem value="christmas">Christmas</SelectItem>
-                        <SelectItem value="anniversary">Anniversary</SelectItem>
-                        <SelectItem value="valentines">Valentine's Day</SelectItem>
-                        <SelectItem value="graduation">Graduation</SelectItem>
-                        <SelectItem value="wedding">Wedding</SelectItem>
-                        <SelectItem value="just-because">Just Because</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 ${
+                      formErrors.occasion ? 'border border-red-500 rounded-lg p-2' : ''
+                    }`}>
+                      {occasionOptions.map(occasion => (
+                        <button 
+                          key={occasion.value}
+                          type="button"
+                          onClick={() => handleSelectChange('occasion', occasion.value)}
+                          className={`rounded-xl overflow-hidden transition-all ${
+                            formData.occasion === occasion.value
+                              ? 'ring-2 ring-primary shadow-md'
+                              : 'hover:shadow-md'
+                          }`}
+                        >
+                          <div className={`bg-gradient-to-r ${occasion.color} p-5 flex flex-col items-center justify-center h-full`}>
+                            <div className="text-3xl mb-2">{occasion.emoji}</div>
+                            <div className={`text-sm font-medium ${
+                              formData.occasion === occasion.value ? 'font-bold' : ''
+                            }`}>
+                              {occasion.label}
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    {formErrors.occasion && (
+                      <p className="text-red-500 text-sm mt-2">Please select an occasion</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -298,8 +381,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                   </span>
                 ) : (
                   <span className="flex items-center">
-                    <Gift className="mr-2 h-5 w-5" />
-                    🎁 Find the perfect gift
+                    🔍 Find the perfect gift
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </span>
                 )}

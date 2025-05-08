@@ -14,8 +14,9 @@ interface FloatingEmoji {
   emoji: string;
   rotation: number;
   rotationSpeed: number;
-  area: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'; // More specific areas
   color: string;
+  yOffset: number;
+  yDirection: number;
 }
 
 const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
@@ -27,9 +28,9 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
     
     // More diverse emoji options with better variety
     const emojiOptions = [
-      '🎁', '🎀', '🎂', '🎊', '🎉', '💝', '🛍️', '✨', 
-      '🎄', '🧸', '🎈', '💍', '👑', '🏆', '🎵', '🧁',
-      '🍰', '🎪', '🎨', '🎭', '🎟️', '🎠'
+      '🎁', '🎀', '🎂', '🎊', '🎉', '💝', '🛍️', 
+      '🎄', '🧸', '🎈', '💍', '👑', '🏆', '🎵',
+      '🎪', '🎨', '🎭', '🎟️', '🎠'
     ];
     
     // Bubble colors
@@ -42,18 +43,10 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
       'bg-[#F5F5DC]/30'
     ];
     
-    // Define different corner areas for emojis to avoid center
-    const areas: Array<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'> = [
-      'top-left', 'top-right', 'bottom-left', 'bottom-right'
-    ];
-    
     // Reduce number of emojis and ensure uniqueness
     const usedEmojis = new Set();
     
-    for (let i = 0; i < 8; i++) { // Reduced from 10 to 8
-      // Assign different areas for better distribution
-      const area = areas[i % areas.length];
-      
+    for (let i = 0; i < 7; i++) { // Reduced to 7 emojis
       // Get unique emoji
       let emoji;
       do {
@@ -62,27 +55,37 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
       
       usedEmojis.add(emoji);
       
-      // Configure initial position based on area to avoid text in center
+      // Define distributed positions across the screen
+      // Avoid the center area (30% to 70% of width, 20% to 70% of height)
       let xPosition: number;
       let yPosition: number;
       
-      switch(area) {
-        case 'top-left':
-          xPosition = Math.random() * 25; // Left 25%
-          yPosition = Math.random() * 25; // Top 25%
+      // Distribute emojis around the screen but not in center
+      switch(i % 6) {
+        case 0: // Top left
+          xPosition = 5 + Math.random() * 20;
+          yPosition = 5 + Math.random() * 20;
           break;
-        case 'top-right':
-          xPosition = 75 + Math.random() * 25; // Right 25%
-          yPosition = Math.random() * 25; // Top 25%
+        case 1: // Top right
+          xPosition = 75 + Math.random() * 20;
+          yPosition = 5 + Math.random() * 20;
           break;
-        case 'bottom-left':
-          xPosition = Math.random() * 25; // Left 25%
-          yPosition = 75 + Math.random() * 25; // Bottom 25%
+        case 2: // Bottom left
+          xPosition = 5 + Math.random() * 20;
+          yPosition = 75 + Math.random() * 20;
           break;
-        case 'bottom-right':
+        case 3: // Bottom right
+          xPosition = 75 + Math.random() * 20;
+          yPosition = 75 + Math.random() * 20;
+          break;
+        case 4: // Top center (but not too close to center)
+          xPosition = 30 + Math.random() * 40;
+          yPosition = 5 + Math.random() * 15;
+          break;
+        case 5: // Bottom center (but not too close to center)
         default:
-          xPosition = 75 + Math.random() * 25; // Right 25%
-          yPosition = 75 + Math.random() * 25; // Bottom 25%
+          xPosition = 30 + Math.random() * 40;
+          yPosition = 80 + Math.random() * 15;
           break;
       }
       
@@ -101,8 +104,9 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
         emoji: emoji,
         rotation: limitedRotation,
         rotationSpeed: (Math.random() - 0.5) * 0.1, // Reduced rotation speed
-        area: area,
-        color: color
+        color: color,
+        yOffset: 0,
+        yDirection: Math.random() > 0.5 ? 1 : -1 // Random initial direction
       });
     }
     
@@ -119,61 +123,19 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
       
       setFloatingEmojis(prevEmojis => 
         prevEmojis.map(emoji => {
-          // Calculate movement based on emoji's area
-          let newX = emoji.x;
-          let newY = emoji.y;
+          // Calculate vertical floating animation
+          let yOffset = emoji.yOffset + (emoji.yDirection * 0.05 * deltaTime / 50);
           
-          // Movement patterns that stay in their respective corners
-          switch(emoji.area) {
-            case 'top-left':
-              // Top-left emojis move in a small circular pattern in their corner
-              newX = emoji.x + Math.sin(currentTime / 3000 + emoji.id) * 0.5;
-              newY = emoji.y + Math.cos(currentTime / 2500 + emoji.id) * 0.5;
-              
-              // Keep in top-left region
-              if (newX > 25) newX = 5;
-              if (newX < 0) newX = 20;
-              if (newY > 25) newY = 5;
-              if (newY < 0) newY = 20;
-              break;
-              
-            case 'top-right':
-              // Top-right emojis float in their corner
-              newX = emoji.x + Math.sin(currentTime / 3200 + emoji.id) * 0.5;
-              newY = emoji.y + Math.cos(currentTime / 2800 + emoji.id) * 0.5;
-              
-              // Keep in top-right region
-              if (newX > 100) newX = 80;
-              if (newX < 75) newX = 95;
-              if (newY > 25) newY = 5;
-              if (newY < 0) newY = 20;
-              break;
-              
-            case 'bottom-left':
-              // Bottom-left emojis float in their corner
-              newX = emoji.x + Math.sin(currentTime / 2700 + emoji.id) * 0.5;
-              newY = emoji.y + Math.cos(currentTime / 3100 + emoji.id) * 0.5;
-              
-              // Keep in bottom-left region
-              if (newX > 25) newX = 5;
-              if (newX < 0) newX = 20;
-              if (newY > 100) newY = 80;
-              if (newY < 75) newY = 95;
-              break;
-              
-            case 'bottom-right':
-              // Bottom-right emojis float in their corner
-              newX = emoji.x + Math.sin(currentTime / 2900 + emoji.id) * 0.5;
-              newY = emoji.y + Math.cos(currentTime / 3300 + emoji.id) * 0.5;
-              
-              // Keep in bottom-right region
-              if (newX > 100) newX = 80;
-              if (newX < 75) newX = 95;
-              if (newY > 100) newY = 80;
-              if (newY < 75) newY = 95;
-              break;
+          // Reverse direction when reaching limits
+          let yDirection = emoji.yDirection;
+          if (Math.abs(yOffset) > 8) {
+            yDirection *= -1;
+            yOffset = yDirection > 0 ? -8 : 8;
           }
           
+          // Calculate horizontal gentle sway
+          const xOffset = Math.sin(currentTime / 3000 + emoji.id) * 3;
+                    
           // Minimal rotation to keep emojis mostly upright
           let newRotation = emoji.rotation + (emoji.rotationSpeed * deltaTime / 100);
           if (newRotation > 5) newRotation = 5;
@@ -181,8 +143,8 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
           
           return {
             ...emoji,
-            x: newX,
-            y: newY,
+            yOffset,
+            yDirection,
             rotation: newRotation
           };
         })
@@ -208,11 +170,11 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
           key={emoji.id}
           className="absolute pointer-events-none select-none"
           style={{
-            left: `${emoji.x}%`,
-            top: `${emoji.y}%`,
+            left: `${emoji.x + Math.sin(Date.now() / 3000 + emoji.id) * 3}%`,
+            top: `${emoji.y + emoji.yOffset}%`,
             fontSize: `${emoji.size}px`,
             transform: `rotate(${emoji.rotation}deg)`,
-            transition: 'transform 0.5s ease-out, left 0.5s ease-out, top 0.5s ease-out'
+            transition: 'transform 0.5s ease-out'
           }}
         >
           <div className={`flex items-center justify-center rounded-full ${emoji.color} backdrop-blur-sm p-2 shadow-lg border border-white/40 hover:scale-110 transition-transform duration-300`}>
