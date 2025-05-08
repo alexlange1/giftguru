@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Gift, CakeSlice, PartyPopper } from 'lucide-react';
 
@@ -26,15 +27,26 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
     // More diverse emoji options with better variety
     const emojiOptions = [
       '🎁', '🎀', '🎂', '🎊', '🎉', '💝', '🛍️', '✨', 
-      '🎄', '🧸', '🎈', '💍', '👑', '🧩', '🏆', '🎵'
+      '🎄', '🧸', '🎈', '💍', '👑', '🏆', '🎵'
     ];
     
     // Define different areas for emojis to avoid text
     const areas: Array<'top' | 'left' | 'right' | 'bottom'> = ['top', 'left', 'right', 'bottom'];
     
-    for (let i = 0; i < 15; i++) {
+    // Reduce number of emojis and track used ones to avoid duplicates
+    const usedEmojis = new Set();
+    
+    for (let i = 0; i < 10; i++) { // Reduced from 15 to 10
       // Assign different areas for better distribution
       const area = areas[i % areas.length];
+      
+      // Get unique emoji
+      let emoji;
+      do {
+        emoji = emojiOptions[Math.floor(Math.random() * emojiOptions.length)];
+      } while (usedEmojis.has(emoji) && usedEmojis.size < emojiOptions.length);
+      
+      usedEmojis.add(emoji);
       
       // Configure initial position based on area to avoid text in center
       let xPosition: number;
@@ -68,7 +80,7 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
         y: yPosition,
         size: Math.random() * 15 + 20, // random size (20-35px)
         speed: Math.random() * 0.15 + 0.05, // Slightly slower for better visibility
-        emoji: emojiOptions[Math.floor(Math.random() * emojiOptions.length)],
+        emoji: emoji,
         rotation: limitedRotation,
         rotationSpeed: (Math.random() - 0.5) * 0.2, // Reduced rotation speed
         area: area
@@ -92,31 +104,47 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
           let newX = emoji.x;
           let newY = emoji.y;
           
-          // Custom movement patterns based on area
+          // Improved movement patterns that don't all converge toward the middle
           switch(emoji.area) {
             case 'top':
-              // Top emojis move horizontally with slight drift
-              newX = emoji.x + (Math.sin(currentTime / 3000 + emoji.id) * 0.04);
-              newY = emoji.y + (emoji.speed * deltaTime / 80);
-              if (newY > 20) newY = 0; // Keep in top area
+              // Top emojis move in small circular patterns
+              newX = emoji.x + (Math.sin(currentTime / 3000 + emoji.id) * 0.05);
+              newY = emoji.y + (Math.cos(currentTime / 2500 + emoji.id) * 0.03 + emoji.speed * deltaTime / 100);
+              if (newY > 20) {
+                // When reaching the bottom of their area, reset to top with new X position
+                newY = 0;
+                newX = 15 + Math.random() * 70;
+              }
               break;
             case 'left':
-              // Left emojis move right slowly then reset
-              newX = emoji.x + (emoji.speed * deltaTime / 80);
-              newY = emoji.y + (Math.sin(currentTime / 2500 + emoji.id) * 0.03);
-              if (newX > 20) newX = 0; // Keep in left area
+              // Left emojis float horizontally with some up/down movement
+              newX = emoji.x + (emoji.speed * deltaTime / 100);
+              newY = emoji.y + (Math.sin(currentTime / 2500 + emoji.id) * 0.04);
+              if (newX > 20) {
+                // When reaching the right of their area, reset to left with new Y position
+                newX = 0;
+                newY = 20 + Math.random() * 60;
+              }
               break;
             case 'right':
-              // Right emojis move left slowly then reset
-              newX = emoji.x - (emoji.speed * deltaTime / 80);
-              newY = emoji.y + (Math.sin(currentTime / 2500 + emoji.id) * 0.03);
-              if (newX < 80) newX = 100; // Keep in right area
+              // Right emojis float left with some up/down movement
+              newX = emoji.x - (emoji.speed * deltaTime / 100);
+              newY = emoji.y + (Math.sin(currentTime / 2500 + emoji.id) * 0.04);
+              if (newX < 80) {
+                // When reaching the left of their area, reset to right with new Y position
+                newX = 100;
+                newY = 20 + Math.random() * 60;
+              }
               break;
             case 'bottom':
-              // Bottom emojis move horizontally with slight drift
-              newX = emoji.x + (Math.sin(currentTime / 3000 + emoji.id) * 0.04);
-              newY = emoji.y - (emoji.speed * deltaTime / 80);
-              if (newY < 80) newY = 100; // Keep in bottom area
+              // Bottom emojis move in gentle wave patterns
+              newX = emoji.x + (Math.sin(currentTime / 3000 + emoji.id) * 0.05);
+              newY = emoji.y - (emoji.speed * deltaTime / 100);
+              if (newY < 80) {
+                // When reaching the top of their area, reset to bottom with new X position
+                newY = 100;
+                newX = 15 + Math.random() * 70;
+              }
               break;
           }
           
@@ -178,7 +206,7 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
       ))}
       
       <div className="max-w-3xl mx-auto text-center z-10 animate-fade-in">
-        <div className="inline-flex items-center justify-center p-2 mb-6 bg-accent/30 backdrop-blur-sm rounded-full">
+        <div className="inline-flex items-center justify-center p-2 px-4 mb-6 bg-accent/30 backdrop-blur-sm rounded-full border border-white/40 shadow-md hover:shadow-lg transition-all">
           <Gift className="w-6 h-6 mr-2 text-primary" />
           <span className="text-sm font-medium">AI Gift Concierge</span>
         </div>
