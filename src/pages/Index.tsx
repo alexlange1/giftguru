@@ -22,15 +22,57 @@ const Index = () => {
     setShowResults(true);
 
     try {
-      // In a real app, this would be an API call
-      // const response = await fetch('/api/suggest', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // });
-      // const data = await response.json();
+      // Format user input as required by the API
+      const userInput = {
+        age: formData.age,
+        relationship: formData.relationship,
+        interests: formData.interests,
+        details: formData.interests, // Using interests as details since our form doesn't have a separate details field
+        budget: formData.budget,
+        occasion: formData.occasion
+      };
       
-      // For demo purposes, we'll mock the API response
+      const res = await fetch("https://8e2b95c5-c309-4d19-a8dc-d757e718f2e1-00-7z8npsu78eaz.picard.replit.dev/recommend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(userInput)
+      });
+      
+      if (!res.ok) {
+        throw new Error(`API request failed with status ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log("Gift recommendations:", data.gifts);
+      
+      // Transform API response to match our GiftSuggestion format
+      const transformedSuggestions: GiftSuggestion[] = data.gifts.map((gift: any, index: number) => ({
+        id: `${index + 1}`,
+        name: gift.name,
+        description: gift.description,
+        category: gift.category || 'Other',
+        price: gift.price_range,
+        buyUrl: gift.buy_link
+      }));
+      
+      setSuggestions(transformedSuggestions);
+      
+      // Scroll to results after they load
+      setTimeout(() => {
+        document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+      
+    } catch (error) {
+      console.error('Error fetching gift suggestions:', error);
+      toast({
+        title: "Something went wrong",
+        description: "Unable to get gift suggestions. Please try again.",
+        variant: "destructive"
+      });
+      
+      // Fallback to mock data if API fails
       const mockResponse: GiftResponse = {
         suggestions: [
           {
@@ -71,23 +113,7 @@ const Index = () => {
         ]
       };
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
       setSuggestions(mockResponse.suggestions);
-      
-      // Scroll to results after they load
-      setTimeout(() => {
-        document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-      
-    } catch (error) {
-      console.error('Error fetching gift suggestions:', error);
-      toast({
-        title: "Something went wrong",
-        description: "Unable to get gift suggestions. Please try again.",
-        variant: "destructive"
-      });
     } finally {
       setIsLoading(false);
     }
