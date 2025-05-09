@@ -27,7 +27,7 @@ const Index = () => {
         age: formData.age,
         relationship: formData.relationship,
         interests: formData.interests,
-        details: formData.interests, // Using interests as details since our form doesn't have a separate details field
+        details: formData.details,
         budget: formData.budget,
         occasion: formData.occasion
       };
