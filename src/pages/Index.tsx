@@ -26,7 +26,7 @@ const Index = () => {
       const userInput = {
         age: formData.age,
         relationship: formData.relationship,
-        interests: formData.interests,
+        interests: formData.interests.split(',').map(i => i.trim()),
         details: formData.details,
         budget: formData.budget,
         occasion: formData.occasion
