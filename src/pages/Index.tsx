@@ -32,7 +32,7 @@ const Index = () => {
         occasion: formData.occasion
       };
       
-      const res = await fetch("https://8e2b95c5-c309-4d19-a8dc-d757e718f2e1-00-7z8npsu78eaz.picard.replit.dev/recommend", {
+      const res = await fetch("https://8e2b95c5-c309-4d19-a8dc-d757e718f2e1-00-7z8npsu78eaz.picard.replit.dev", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -148,3 +148,4 @@ const Index = () => {
 };
 
 export default Index;
+
