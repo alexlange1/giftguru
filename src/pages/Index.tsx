@@ -26,11 +26,14 @@ const Index = () => {
       const userInput = {
         age: formData.age,
         relationship: formData.relationship,
-        interests: formData.interests.split(',').map(i => i.trim()),
+        interests: Array.isArray(formData.interests)
+          ? formData.interests
+          : formData.interests.split(',').map(i => i.trim()),
         details: formData.details,
         budget: formData.budget,
         occasion: formData.occasion
       };
+      
       
       const res = await fetch("https://giftguru-alexanderlange.replit.app/recommend", {
         method: "POST",
