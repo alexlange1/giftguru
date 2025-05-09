@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { RadioGroup } from '@/components/ui/radio-group';
+import { Toggle } from '@/components/ui/toggle';
 
 interface QuizFormProps {
   onSubmit: (data: GiftFormData) => void;
@@ -29,7 +30,6 @@ interface RelationshipOption {
   value: string;
   label: string;
   emoji: string;
-  gradient: string;
 }
 
 interface OccasionOption {
@@ -67,18 +67,18 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
     { value: 'gaming', label: 'Gaming', icon: Gamepad },
   ];
   
-  // Relationship options with improved emojis and gradients
+  // Relationship options with emojis and gradients
   const relationshipOptions: RelationshipOption[] = [
-    { value: 'friend', label: 'Friend', emoji: '🤝', gradient: 'from-blue-500/20 to-blue-300/20' },
-    { value: 'partner', label: 'Partner/Spouse', emoji: '❤️', gradient: 'from-red-500/20 to-pink-300/20' },
-    { value: 'parent', label: 'Parent', emoji: '👨‍👩‍👧', gradient: 'from-green-500/20 to-teal-300/20' },
-    { value: 'child', label: 'Child', emoji: '🧸', gradient: 'from-yellow-500/20 to-amber-300/20' },
-    { value: 'sibling', label: 'Sibling', emoji: '👫', gradient: 'from-purple-500/20 to-indigo-300/20' },
-    { value: 'coworker', label: 'Coworker', emoji: '💼', gradient: 'from-gray-500/20 to-slate-300/20' },
-    { value: 'other', label: 'Other', emoji: '🎁', gradient: 'from-cyan-500/20 to-cyan-300/20' },
+    { value: 'friend', label: 'Friend', emoji: '👯' },
+    { value: 'partner', label: 'Partner/Spouse', emoji: '💑' },
+    { value: 'parent', label: 'Parent', emoji: '👪' },
+    { value: 'child', label: 'Child', emoji: '👶' },
+    { value: 'sibling', label: 'Sibling', emoji: '👨‍👩‍👧‍👦' },
+    { value: 'coworker', label: 'Coworker', emoji: '👨‍💼' },
+    { value: 'other', label: 'Other', emoji: '🤝' },
   ];
   
-  // Occasion options with consistent gradients
+  // Occasion options with emojis and consistent gradients
   const occasionOptions: OccasionOption[] = [
     { value: 'birthday', label: 'Birthday', emoji: '🎂', gradient: 'from-pink-500/20 to-orange-500/20' },
     { value: 'christmas', label: 'Christmas', emoji: '🎄', gradient: 'from-green-500/20 to-red-500/20' },
@@ -123,6 +123,17 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
       }
     });
     
+    // Update the selected interests in form data without affecting the textarea
+    const updatedInterests = selectedInterests.includes(interest) 
+      ? selectedInterests.filter(i => i !== interest)
+      : [...selectedInterests, interest];
+      
+    // Set the interests field to the joined list of selected interests
+    setFormData(prev => ({
+      ...prev,
+      interests: prev.interests // Keep the text value from the textarea unchanged
+    }));
+    
     // Clear interest error if any were selected
     if (!selectedInterests.includes(interest)) {
       setFormErrors(prev => ({ ...prev, interests: false }));
@@ -159,13 +170,6 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
   return (
     <section id="quiz" className="py-16 px-4 bg-gradient-to-br from-[#fcf5f9] to-[#f5eef7] dark:from-[#201920] dark:to-[#1a171f]">
       <div className="max-w-3xl mx-auto">
-        <div className="flex justify-center mb-8">
-          <img 
-            src="/lovable-uploads/ba2a520d-9188-46b0-8d95-82bb88ac924e.png" 
-            alt="GiftGuru Logo" 
-            className="h-20 w-auto"
-          />
-        </div>
         <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4 text-center">
           Help us find your perfect gift
         </h2>
@@ -208,25 +212,23 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                     <Label htmlFor="relationship" className="text-lg font-medium text-gray-800 dark:text-gray-200 font-serif mb-3 block">
                       Your Relationship <RequiredIndicator />
                     </Label>
-                    <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 ${
-                      formErrors.relationship ? 'border border-red-500 rounded-lg p-2' : ''
-                    }`}>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {relationshipOptions.map(option => (
                         <button
                           key={option.value}
                           type="button"
                           onClick={() => handleSelectChange('relationship', option.value)}
-                          className={`p-3 rounded-xl transition-all ${
+                          className={`p-4 rounded-xl transition-all ${
                             formData.relationship === option.value
-                              ? 'bg-gradient-to-r from-primary/30 to-primary/10 ring-2 ring-primary/70 shadow-md'
-                              : 'bg-gradient-to-r ' + option.gradient + ' hover:shadow-md'
-                          }`}
+                              ? 'bg-gradient-to-r from-primary/20 to-primary/5 ring-2 ring-primary/70 shadow-md'
+                              : 'bg-white/50 dark:bg-gray-700/50 hover:bg-white hover:dark:bg-gray-700'
+                          } ${formErrors.relationship ? 'border-red-500 dark:border-red-500' : ''}`}
                         >
-                          <div className="bg-white/80 dark:bg-gray-800/80 p-4 rounded-full mb-2 flex items-center justify-center shadow-sm">
+                          <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 rounded-lg mb-2 flex items-center justify-center">
                             <span className="text-3xl">{option.emoji}</span>
                           </div>
                           <span className={`text-sm font-medium block text-center ${
-                            formData.relationship === option.value ? 'font-bold text-primary' : ''
+                            formData.relationship === option.value ? 'font-bold' : ''
                           }`}>
                             {option.label}
                           </span>
@@ -264,8 +266,8 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                       >
                         <div className={`bg-gradient-to-r ${
                           selectedInterests.includes(interest.value)
-                            ? 'from-primary/30 to-primary/10'
-                            : 'from-blue-100 to-indigo-100 dark:from-gray-700 dark:to-gray-800'
+                            ? 'from-primary/20 to-primary/5'
+                            : 'from-gray-100 to-white dark:from-gray-700 dark:to-gray-800'
                         } p-5 flex flex-col items-center justify-center h-full`}>
                           <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-full mb-2 shadow-sm">
                             <interest.icon className={`h-6 w-6 ${
@@ -292,7 +294,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                       value={formData.interests} 
                       onChange={handleChange}
                       rows={3}
-                      placeholder="Tell us about their favorite brands, specific hobbies, or anything else that might help us find the perfect gift..."
+                      placeholder="Additional interests, favorite brands, hobbies, or any other relevant details..."
                       className="w-full p-4 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm border-[#e5deff] dark:border-[#8B5CF6]/30 rounded-xl resize-none focus:ring-primary focus:ring-offset-0"
                     />
                   </div>
