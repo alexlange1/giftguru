@@ -32,7 +32,7 @@ const Index = () => {
         occasion: formData.occasion
       };
       
-      const res = await fetch("https://giftguru-alexanderlange.replit.app", {
+      const res = await fetch("https://giftguru-alexanderlange.replit.app/recommend", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -133,10 +133,17 @@ const Index = () => {
       
       <footer className="bg-white dark:bg-gray-900 py-8 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center">
-            <h2 className="font-serif text-2xl mb-4">
-              GiftGuru – AI Gift Concierge
-            </h2>
+          <div className="flex flex-col items-center justify-center gap-4">
+            <div className="flex items-center gap-3">
+              <img 
+                src="/lovable-uploads/bf1b3eae-447d-434a-a140-0f395a12ebe7.png" 
+                alt="GiftGuru Logo" 
+                className="h-12 w-auto"
+              />
+              <h2 className="font-serif text-2xl">
+                GiftGuru – AI Gift Concierge
+              </h2>
+            </div>
             <p className="text-gray-600 dark:text-gray-400">
               Finding the perfect gift, made simple.
             </p>

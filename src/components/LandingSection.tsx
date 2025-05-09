@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Gift } from 'lucide-react';
 
@@ -30,7 +31,8 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
     const emojiOptions = [
       '🎁', '🎀', '🎂', '🎊', '🎉', '💝', '🛍️', 
       '🎄', '🧸', '🎈', '💍', '👑', '🏆', '🎵',
-      '🎪', '🎨', '🎭', '🎟️', '🎠'
+      '🎪', '🎨', '🎭', '🎟️', '🎠', '🧩', '🎯',
+      '🚗', '✈️', '🌈', '🌟', '💎'
     ];
     
     // Bubble colors
@@ -40,13 +42,15 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
       'bg-[#E5DEFF]/30',
       'bg-[#FFDEE2]/30',
       'bg-[#D3FDE1]/30',
-      'bg-[#F5F5DC]/30'
+      'bg-[#F5F5DC]/30',
+      'bg-[#E1FDFD]/30',
+      'bg-[#FDF5E1]/30'
     ];
     
     // Reduce number of emojis and ensure uniqueness
     const usedEmojis = new Set();
     
-    for (let i = 0; i < 7; i++) { // Reduced to 7 emojis
+    for (let i = 0; i < 11; i++) { // Increased to 11 emojis (4 more than the original 7)
       // Get unique emoji
       let emoji;
       do {
@@ -61,7 +65,7 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
       let yPosition: number;
       
       // Distribute emojis around the screen but not in center
-      switch(i % 6) {
+      switch(i % 9) {
         case 0: // Top left
           xPosition = 5 + Math.random() * 20;
           yPosition = 5 + Math.random() * 20;
@@ -83,9 +87,24 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
           yPosition = 5 + Math.random() * 15;
           break;
         case 5: // Bottom center (but not too close to center)
-        default:
           xPosition = 30 + Math.random() * 40;
           yPosition = 80 + Math.random() * 15;
+          break;
+        case 6: // Left middle
+          xPosition = 5 + Math.random() * 15;
+          yPosition = 30 + Math.random() * 40;
+          break;
+        case 7: // Right middle
+          xPosition = 80 + Math.random() * 15;
+          yPosition = 30 + Math.random() * 40;
+          break;
+        case 8: // Extra position (upper left quadrant)
+          xPosition = 15 + Math.random() * 15;
+          yPosition = 15 + Math.random() * 15;
+          break;
+        default:
+          xPosition = 40 + Math.random() * 20;
+          yPosition = 40 + Math.random() * 20;
           break;
       }
       
@@ -177,7 +196,7 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
             transition: 'transform 0.5s ease-out'
           }}
         >
-          <div className={`flex items-center justify-center rounded-full ${emoji.color} backdrop-blur-sm p-2 shadow-lg border border-white/40 hover:scale-110 transition-transform duration-300`}>
+          <div className={`flex items-center justify-center rounded-full aspect-square ${emoji.color} backdrop-blur-sm p-2 shadow-lg border border-white/40 hover:scale-110 transition-transform duration-300`} style={{width: `${emoji.size * 1.8}px`, height: `${emoji.size * 1.8}px`}}>
             <span>{emoji.emoji}</span>
           </div>
         </div>
@@ -185,7 +204,11 @@ const LandingSection: React.FC<LandingSectionProps> = ({ onGetStarted }) => {
       
       <div className="max-w-3xl mx-auto text-center z-10 animate-fade-in">
         <div className="inline-flex items-center justify-center p-2 px-4 mb-6 bg-accent/30 backdrop-blur-sm rounded-full border border-white/40 shadow-md hover:shadow-lg transition-all">
-          <Gift className="w-6 h-6 mr-2 text-primary" />
+          <img 
+            src="/lovable-uploads/bf1b3eae-447d-434a-a140-0f395a12ebe7.png" 
+            alt="GiftGuru Logo" 
+            className="w-6 h-6 mr-2"
+          />
           <span className="text-sm font-medium">AI Gift Concierge</span>
         </div>
         
