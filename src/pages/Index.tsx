@@ -137,6 +137,13 @@ const Index = () => {
             <h2 className="font-serif text-2xl mb-4">
               GiftGuru – AI Gift Concierge
             </h2>
+            <div className="flex justify-center mb-4">
+              <img 
+                src="/lovable-uploads/ba2a520d-9188-46b0-8d95-82bb88ac924e.png" 
+                alt="GiftGuru Logo" 
+                className="h-16 w-auto"
+              />
+            </div>
             <p className="text-gray-600 dark:text-gray-400">
               Finding the perfect gift, made simple.
             </p>
