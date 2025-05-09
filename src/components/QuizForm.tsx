@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { GiftFormData } from '../types/gift';
 import { 
-  ArrowRight, Camera, Music, Book, 
-  Utensils, Plane, Code, Lightbulb, 
+  Gift, Camera, Music, Book, 
+  Utensils, Plane, Code, 
   Palette, Scissors, Gamepad
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
@@ -24,21 +24,19 @@ interface InterestOption {
   value: string;
   label: string;
   icon: React.ElementType;
-  color: string;
 }
 
 interface RelationshipOption {
   value: string;
   label: string;
   emoji: string;
-  color: string;
 }
 
 interface OccasionOption {
   value: string;
   label: string;
   emoji: string;
-  color: string;
+  gradient: string;
 }
 
 const RequiredIndicator = () => (
@@ -57,39 +55,39 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
 
-  // Pre-defined interest options with icons - added Creative and Gaming options
+  // Pre-defined interest options with icons
   const interestOptions: InterestOption[] = [
-    { value: 'photography', label: 'Photography', icon: Camera, color: 'bg-blue-100 dark:bg-blue-900' },
-    { value: 'music', label: 'Music', icon: Music, color: 'bg-purple-100 dark:bg-purple-900' },
-    { value: 'reading', label: 'Reading', icon: Book, color: 'bg-yellow-100 dark:bg-yellow-900' },
-    { value: 'cooking', label: 'Cooking', icon: Utensils, color: 'bg-red-100 dark:bg-red-900' },
-    { value: 'travel', label: 'Travel', icon: Plane, color: 'bg-green-100 dark:bg-green-900' },
-    { value: 'tech', label: 'Technology', icon: Code, color: 'bg-gray-100 dark:bg-gray-800' },
-    { value: 'creative', label: 'Creative', icon: Palette, color: 'bg-pink-100 dark:bg-pink-900' },
-    { value: 'gaming', label: 'Gaming', icon: Gamepad, color: 'bg-indigo-100 dark:bg-indigo-900' },
+    { value: 'photography', label: 'Photography', icon: Camera },
+    { value: 'music', label: 'Music', icon: Music },
+    { value: 'reading', label: 'Reading', icon: Book },
+    { value: 'cooking', label: 'Cooking', icon: Utensils },
+    { value: 'travel', label: 'Travel', icon: Plane },
+    { value: 'tech', label: 'Technology', icon: Code },
+    { value: 'creative', label: 'Creative', icon: Palette },
+    { value: 'gaming', label: 'Gaming', icon: Gamepad },
   ];
   
-  // Relationship options with emojis and colors
+  // Relationship options with emojis and gradients
   const relationshipOptions: RelationshipOption[] = [
-    { value: 'friend', label: 'Friend', emoji: '👯', color: 'bg-blue-100 dark:bg-blue-800' },
-    { value: 'partner', label: 'Partner/Spouse', emoji: '💑', color: 'bg-pink-100 dark:bg-pink-800' },
-    { value: 'parent', label: 'Parent', emoji: '👪', color: 'bg-green-100 dark:bg-green-800' },
-    { value: 'child', label: 'Child', emoji: '👶', color: 'bg-yellow-100 dark:bg-yellow-800' },
-    { value: 'sibling', label: 'Sibling', emoji: '👨‍👩‍👧‍👦', color: 'bg-purple-100 dark:bg-purple-800' },
-    { value: 'coworker', label: 'Coworker', emoji: '👨‍💼', color: 'bg-gray-100 dark:bg-gray-700' },
-    { value: 'other', label: 'Other', emoji: '🤝', color: 'bg-orange-100 dark:bg-orange-800' },
+    { value: 'friend', label: 'Friend', emoji: '👯' },
+    { value: 'partner', label: 'Partner/Spouse', emoji: '💑' },
+    { value: 'parent', label: 'Parent', emoji: '👪' },
+    { value: 'child', label: 'Child', emoji: '👶' },
+    { value: 'sibling', label: 'Sibling', emoji: '👨‍👩‍👧‍👦' },
+    { value: 'coworker', label: 'Coworker', emoji: '👨‍💼' },
+    { value: 'other', label: 'Other', emoji: '🤝' },
   ];
   
-  // Occasion options with emojis and colors
+  // Occasion options with emojis and consistent gradients
   const occasionOptions: OccasionOption[] = [
-    { value: 'birthday', label: 'Birthday', emoji: '🎂', color: 'from-pink-500/20 to-orange-500/20' },
-    { value: 'christmas', label: 'Christmas', emoji: '🎄', color: 'from-green-500/20 to-red-500/20' },
-    { value: 'anniversary', label: 'Anniversary', emoji: '💍', color: 'from-purple-500/20 to-pink-500/20' },
-    { value: 'valentines', label: 'Valentine\'s Day', emoji: '❤️', color: 'from-red-500/20 to-pink-500/20' },
-    { value: 'graduation', label: 'Graduation', emoji: '🎓', color: 'from-blue-500/20 to-indigo-500/20' },
-    { value: 'wedding', label: 'Wedding', emoji: '👰', color: 'from-blue-500/20 to-purple-500/20' },
-    { value: 'just-because', label: 'Just Because', emoji: '✨', color: 'from-yellow-500/20 to-orange-500/20' },
-    { value: 'other', label: 'Other', emoji: '🎁', color: 'from-gray-500/20 to-gray-400/20' },
+    { value: 'birthday', label: 'Birthday', emoji: '🎂', gradient: 'from-pink-500/20 to-orange-500/20' },
+    { value: 'christmas', label: 'Christmas', emoji: '🎄', gradient: 'from-green-500/20 to-red-500/20' },
+    { value: 'anniversary', label: 'Anniversary', emoji: '💍', gradient: 'from-purple-500/20 to-pink-500/20' },
+    { value: 'valentines', label: 'Valentine\'s Day', emoji: '❤️', gradient: 'from-red-500/20 to-pink-500/20' },
+    { value: 'graduation', label: 'Graduation', emoji: '🎓', gradient: 'from-blue-500/20 to-indigo-500/20' },
+    { value: 'wedding', label: 'Wedding', emoji: '👰', gradient: 'from-blue-500/20 to-purple-500/20' },
+    { value: 'just-because', label: 'Just Because', emoji: '✨', gradient: 'from-yellow-500/20 to-orange-500/20' },
+    { value: 'other', label: 'Other', emoji: '🎁', gradient: 'from-gray-500/20 to-gray-400/20' },
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -125,15 +123,15 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
       }
     });
     
-    // Update interests in form data - but don't add to the textarea
-    // Only store the selected interests ids in the formData
+    // Update the selected interests in form data without affecting the textarea
     const updatedInterests = selectedInterests.includes(interest) 
       ? selectedInterests.filter(i => i !== interest)
       : [...selectedInterests, interest];
       
+    // Set the interests field to the joined list of selected interests
     setFormData(prev => ({
       ...prev,
-      interests: updatedInterests.join(', ')
+      interests: prev.interests // Keep the text value from the textarea unchanged
     }));
     
     // Clear interest error if any were selected
@@ -148,19 +146,24 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
     // Validate required fields
     const errors: Record<string, boolean> = {};
     if (!formData.relationship) errors.relationship = true;
-    if (!formData.interests && selectedInterests.length === 0) errors.interests = true;
     if (!formData.budget) errors.budget = true;
     if (!formData.occasion) errors.occasion = true;
+    if (selectedInterests.length === 0 && !formData.interests) errors.interests = true;
     
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
     
+    // Create the combined interests to submit - it includes both selected interests and additional interests from textarea
+    const combinedInterests = [
+      ...selectedInterests,
+      ...(formData.interests ? [formData.interests] : [])
+    ].join(', ');
+    
     onSubmit({
       ...formData,
-      // For the textarea interests, we'll only use what's in the textArea as additional interests
-      interests: [...selectedInterests, formData.interests].filter(Boolean).join(', ')
+      interests: combinedInterests
     });
   };
 
@@ -215,14 +218,16 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                           key={option.value}
                           type="button"
                           onClick={() => handleSelectChange('relationship', option.value)}
-                          className={`p-4 rounded-xl transition-all flex flex-col items-center ${
+                          className={`p-4 rounded-xl transition-all ${
                             formData.relationship === option.value
-                              ? `${option.color} ring-2 ring-primary/70 shadow-md`
+                              ? 'bg-gradient-to-r from-primary/20 to-primary/5 ring-2 ring-primary/70 shadow-md'
                               : 'bg-white/50 dark:bg-gray-700/50 hover:bg-white hover:dark:bg-gray-700'
-                          } ${formErrors.relationship && 'border-red-500 dark:border-red-500'}`}
+                          } ${formErrors.relationship ? 'border-red-500 dark:border-red-500' : ''}`}
                         >
-                          <span className="text-3xl mb-2">{option.emoji}</span>
-                          <span className={`text-sm font-medium ${
+                          <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 rounded-lg mb-2 flex items-center justify-center">
+                            <span className="text-3xl">{option.emoji}</span>
+                          </div>
+                          <span className={`text-sm font-medium block text-center ${
                             formData.relationship === option.value ? 'font-bold' : ''
                           }`}>
                             {option.label}
@@ -253,21 +258,31 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                         key={interest.value}
                         type="button"
                         onClick={() => toggleInterest(interest.value)}
-                        className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all ${
+                        className={`rounded-xl overflow-hidden transition-all ${
                           selectedInterests.includes(interest.value)
-                            ? `${interest.color} ring-2 ring-primary`
-                            : 'bg-white/50 dark:bg-gray-700/50 hover:bg-white hover:dark:bg-gray-700'
+                            ? 'ring-2 ring-primary shadow-md'
+                            : 'hover:shadow-md'
                         }`}
                       >
-                        <interest.icon className={`h-6 w-6 mb-2 ${
-                          selectedInterests.includes(interest.value) ? 'text-primary' : 'text-gray-600 dark:text-gray-300'
-                        }`} />
-                        <span className="text-sm font-medium">{interest.label}</span>
+                        <div className={`bg-gradient-to-r ${
+                          selectedInterests.includes(interest.value)
+                            ? 'from-primary/20 to-primary/5'
+                            : 'from-gray-100 to-white dark:from-gray-700 dark:to-gray-800'
+                        } p-5 flex flex-col items-center justify-center h-full`}>
+                          <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-full mb-2 shadow-sm">
+                            <interest.icon className={`h-6 w-6 ${
+                              selectedInterests.includes(interest.value) ? 'text-primary' : 'text-gray-600 dark:text-gray-300'
+                            }`} />
+                          </div>
+                          <span className={`text-sm font-medium ${
+                            selectedInterests.includes(interest.value) ? 'font-bold text-primary' : ''
+                          }`}>{interest.label}</span>
+                        </div>
                       </button>
                     ))}
                   </div>
                   {formErrors.interests && (
-                    <p className="text-red-500 text-sm mb-2">Please select at least one interest</p>
+                    <p className="text-red-500 text-sm mb-2">Please select at least one interest or provide details</p>
                   )}
                   <div>
                     <Label htmlFor="interests" className="text-gray-800 dark:text-gray-200 mb-2 block">
@@ -279,7 +294,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                       value={formData.interests} 
                       onChange={handleChange}
                       rows={3}
-                      placeholder="Tell us about their passions... (e.g., specific genres, brands they love, hobbies)"
+                      placeholder="Additional interests, favorite brands, hobbies, or any other relevant details..."
                       className="w-full p-4 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm border-[#e5deff] dark:border-[#8B5CF6]/30 rounded-xl resize-none focus:ring-primary focus:ring-offset-0"
                     />
                   </div>
@@ -346,10 +361,12 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                               : 'hover:shadow-md'
                           }`}
                         >
-                          <div className={`bg-gradient-to-r ${occasion.color} p-5 flex flex-col items-center justify-center h-full`}>
-                            <div className="text-3xl mb-2">{occasion.emoji}</div>
+                          <div className={`bg-gradient-to-r ${occasion.gradient} p-5 flex flex-col items-center justify-center h-full`}>
+                            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-full mb-2 shadow-sm">
+                              <span className="text-2xl">{occasion.emoji}</span>
+                            </div>
                             <div className={`text-sm font-medium ${
-                              formData.occasion === occasion.value ? 'font-bold' : ''
+                              formData.occasion === occasion.value ? 'font-bold text-primary' : ''
                             }`}>
                               {occasion.label}
                             </div>
@@ -381,8 +398,8 @@ const QuizForm: React.FC<QuizFormProps> = ({ onSubmit, isSubmitting }) => {
                   </span>
                 ) : (
                   <span className="flex items-center">
-                    🔍 Find the perfect gift
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <Gift className="mr-2 h-5 w-5" />
+                    Find the perfect gift
                   </span>
                 )}
               </button>
