@@ -85,6 +85,15 @@
   }
 }
 
+@layer utilities {
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
 /* Animation classes */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
