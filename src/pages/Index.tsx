@@ -1,10 +1,12 @@
-
 import React, { useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import LandingSection from '../components/LandingSection';
 import QuizForm from '../components/QuizForm';
 import ResultSection from '../components/ResultSection';
 import { GiftFormData, GiftSuggestion, GiftResponse } from '../types/gift';
+import { GiftRecommender } from '../lib/recommender';
+import { generateDummyProducts } from '../lib/generateDummyProducts';
+import { Relationship, Interest, BudgetRange, Occasion } from '../types/product';
 
 const Index = () => {
   const { toast } = useToast();
@@ -17,65 +19,97 @@ const Index = () => {
     quizRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Mapping functions from form string values to strict types
+  const mapRelationship = (value: string): Relationship => {
+    switch (value.toLowerCase()) {
+      case 'friend': return 'Friend';
+      case 'partner':
+      case 'partner/spouse': return 'Partner/Spouse';
+      case 'parent': return 'Parent';
+      case 'child': return 'Child';
+      case 'sibling': return 'Sibling';
+      case 'coworker': return 'Coworker';
+      default: return 'Other';
+    }
+  };
+  const mapInterest = (value: string): Interest => {
+    switch (value.toLowerCase()) {
+      case 'photography': return 'Photography';
+      case 'music': return 'Music';
+      case 'reading': return 'Reading';
+      case 'cooking': return 'Cooking';
+      case 'travel': return 'Travel';
+      case 'tech':
+      case 'technology': return 'Technology';
+      case 'creative': return 'Creative';
+      case 'gaming': return 'Gaming';
+      default: return 'Creative'; // fallback
+    }
+  };
+  const mapBudget = (value: string): BudgetRange => {
+    switch (value) {
+      case 'under-25': return 'Under $25';
+      case '25-50': return '$25 - $50';
+      case '50-100': return '$50 - $100';
+      case 'over-100': return 'Over $100';
+      default: return 'Under $25';
+    }
+  };
+  const mapOccasion = (value: string): Occasion => {
+    switch (value) {
+      case 'birthday': return 'Birthday';
+      case 'christmas': return 'Christmas';
+      case 'anniversary': return 'Anniversary';
+      case 'valentines': return "Valentine's Day";
+      case 'graduation': return 'Graduation';
+      case 'wedding': return 'Wedding';
+      case 'just-because': return 'Just Because';
+      case 'other': return 'Other';
+      default: return 'Other';
+    }
+  };
+
   const handleSubmitForm = async (formData: GiftFormData) => {
     setIsLoading(true);
     setShowResults(true);
 
     try {
-      // Format user input as required by the API
-      const userInput = {
+      // Use local recommender as the primary source
+      const relationship = mapRelationship(formData.relationship);
+      const interests = formData.interests.split(',').map(i => mapInterest(i.trim()));
+      const budgetRange = mapBudget(formData.budget);
+      const occasion = mapOccasion(formData.occasion);
+      const products = generateDummyProducts(500);
+      const recommender = new GiftRecommender(products);
+      const recommendations = recommender.getRecommendations({
         age: formData.age,
-        relationship: formData.relationship,
-        interests: Array.isArray(formData.interests)
-          ? formData.interests
-          : formData.interests.split(',').map(i => i.trim()),
-        details: formData.details,
-        budget: formData.budget,
-        occasion: formData.occasion
-      };
-      
-      
-      const res = await fetch("https://giftguru-alexanderlange.replit.app/recommend", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(userInput)
-      });
-      
-      if (!res.ok) {
-        throw new Error(`API request failed with status ${res.status}`);
-      }
-
-      const data = await res.json();
-      console.log("Gift recommendations:", data.gifts);
-      
-      // Transform API response to match our GiftSuggestion format
-      const transformedSuggestions: GiftSuggestion[] = data.gifts.map((gift: any, index: number) => ({
-        id: `${index + 1}`,
-        name: gift.name,
-        description: gift.description,
-        category: gift.category || 'Other',
-        price: gift.price_range,
-        buyUrl: gift.buy_link
+        relationship,
+        interests,
+        budgetRange,
+        occasion,
+        additionalDetails: ''
+      }, 10);
+      const transformedSuggestions: GiftSuggestion[] = recommendations.map((product, index) => ({
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        category: product.category,
+        imageUrl: product.imageUrl,
+        price: `$${product.price}`,
+        buyUrl: ''
       }));
-      
       setSuggestions(transformedSuggestions);
-      
-      // Scroll to results after they load
       setTimeout(() => {
         document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
-      
     } catch (error) {
-      console.error('Error fetching gift suggestions:', error);
+      console.error('Error generating gift suggestions:', error);
       toast({
         title: "Something went wrong",
         description: "Unable to get gift suggestions. Please try again.",
         variant: "destructive"
       });
-      
-      // Fallback to mock data if API fails
+      // Fallback to static mock data if even local recommender fails
       const mockResponse: GiftResponse = {
         suggestions: [
           {
@@ -115,7 +149,6 @@ const Index = () => {
           }
         ]
       };
-      
       setSuggestions(mockResponse.suggestions);
     } finally {
       setIsLoading(false);
