@@ -1,6 +1,5 @@
 import { Product, Interest, Relationship, Occasion, BudgetRange } from '../types/product';
-import xlsx from 'xlsx';
-import path from 'path';
+import giftList from './final_giftlist.json';
 
 // Helper functions to map string values to enums
 const mapRelationship = (value: string): Relationship => {
@@ -53,12 +52,8 @@ const mapOccasion = (value: string): Occasion => {
 };
 
 export function generateDummyProducts(): Product[] {
-  const filePath = path.resolve('final_giftlist.xlsx');
-  const wb = xlsx.readFile(filePath);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows = xlsx.utils.sheet_to_json(ws, { header: 1, range: 1, blankrows: false });
-
-  return rows.map((row: any[], idx: number) => {
+  // Each row: [gift_id, gift_name, description, price, budget_range, occasion, age_range, relationship, interests, brand_or_notes]
+  return (giftList as any[]).map((row: any[], idx: number) => {
     const [gift_id, gift_name, description, price, budget_range, occasion, age_range, relationship, interests, brand_or_notes] = row;
     return {
       id: gift_id || `gift_${idx}`,
